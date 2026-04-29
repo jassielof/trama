@@ -1,0 +1,3 @@
+[submodule "references/zkittle"]
+	path = references/zkittle
+	url = https://codeberg.org/bcrist/zkittle
