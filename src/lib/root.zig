@@ -1,6 +1,7 @@
 const std = @import("std");
 const refAllDecls = std.testing.refAllDecls;
 
+// TODO: AsciiDoc doesn't sound as a good escape name, if escape mode referes to the `{{ ... }}` syntax, then that should be mostly Go style, and not AsciiDoc.
 pub const EscapeMode = enum {
     none,
     asciidoc,
