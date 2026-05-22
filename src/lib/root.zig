@@ -1,5 +1,4 @@
 const std = @import("std");
-const refAllDecls = std.testing.refAllDecls;
 
 // TODO: AsciiDoc doesn't sound as a good escape name, if escape mode referes to the `{{ ... }}` syntax, then that should be mostly Go style, and not AsciiDoc.
 pub const EscapeMode = enum {
@@ -571,7 +570,7 @@ fn escapeUrl(allocator: std.mem.Allocator, out: *std.ArrayList(u8), text: []cons
 }
 
 comptime {
-    refAllDecls(@This());
+    std.testing.refAllDecls(@This());
 }
 
 test "interpolates fields and escapes asciidoc braces" {

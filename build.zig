@@ -1,4 +1,5 @@
 const std = @import("std");
+const lizzy = @import("lizzy");
 
 pub fn build(b: *std.Build) void {
     const mod_name = "trama";
@@ -27,10 +28,10 @@ pub fn build(b: *std.Build) void {
 
     docs_step.dependOn(&docs.step);
 
-    const tests_step = b.step("tests", "Run the test suite");
+    const tests_step = b.step("test", "Run the test suite");
 
     const unit_tests = b.addTest(.{
-        .name = "Unit Tests",
+        .name = "Unit",
         .root_module = mod,
     });
 
@@ -38,7 +39,7 @@ pub fn build(b: *std.Build) void {
     tests_step.dependOn(&run_unit_tests.step);
 
     const integration_tests = b.addTest(.{
-        .name = "Integration Tests",
+        .name = "Integration",
         .root_module = b.createModule(.{
             .root_source_file = b.path("tests/suite.zig"),
             .target = target,
@@ -52,4 +53,15 @@ pub fn build(b: *std.Build) void {
 
     const run_integration_tests = b.addRunArtifact(integration_tests);
     tests_step.dependOn(&run_integration_tests.step);
+
+    const check_step = b.step("check", "Run code quality checks");
+
+    const lizzy_step = lizzy.addStepWithBuildOptions(b, .{});
+    check_step.dependOn(lizzy_step);
+
+    const fmt = b.addFmt(.{
+        .check = true,
+        .paths = &.{"src/"},
+    });
+    check_step.dependOn(&fmt.step);
 }
