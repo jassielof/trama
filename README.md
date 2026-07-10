@@ -1,23 +1,49 @@
 # Trama
 
-Trama is a text templating library for generating structured plain-text output, including CLI reference pages, AsciiDoc/Markdown documentation, configuration files, source files, and task-runner command strings. It uses familiar `{{ ... }}` template blocks while keeping the design explicit and predictable: typed data contexts, custom functions, configurable escaping, and a rendering model suited for Zig.
+Trama is a text templating library for generating structured plain-text output
+(CLI reference pages, AsciiDoc/Markdown, config files, and similar). It uses
+Go [`text/template`](https://pkg.go.dev/text/template)–compatible `{{ ... }}`
+syntax, with a small set of documented Trama extensions.
 
-## Syntax
+## Go-compatible features
 
-Trama uses `{{ ... }}` delimiters. This is intentionally different from Zkittle's slash-style command blocks: double braces are familiar from Go templates, Jinja, Django, Handlebars, and Taskfile, while avoiding AsciiDoc's single-brace attributes, shell `${VAR}` syntax, and slash/comment conflicts.
+- Interpolation and pipelines: `{{ .name }}`, `{{ .x | default "-" | printf "%s" }}`
+- Whitespace trim: `{{-` and `-}}`
+- Comments: `{{/* ... */}}`
+- Conditionals: `{{ if }}` / `{{ else if }}` / `{{ else }}` / `{{ end }}`
+- Loops: `{{ range }}` / `{{ else }}` / `{{ end }}`, plus `{{ break }}` / `{{ continue }}`
+- Range variables: `{{ range $i, $v := .items }}`
+- `{{ with }}` / `{{ else }}` / `{{ end }}`
+- Variables: `{{ $x := pipeline }}`, `{{ $x = pipeline }}`
+- Named templates: `{{ define "name" }}` / `{{ template "name" pipeline }}` / `{{ block "name" pipeline }}`
+- Dot and root: `.`, `$`, `$.field`
+- Builtins: `and`, `or`, `not`, `eq`, `ne`, `lt`, `le`, `gt`, `ge`, `len`, `index`, `slice`, `print`, `printf`, `println`, `default`, `join`
 
-The v0 renderer supports:
+## Trama extensions (not in Go)
 
-- Interpolation: `{{ name }}`, `{{ command.display_path }}`
-- Raw output: `{{ @raw usage }}`
-- Conditionals: `{{ if description }}...{{ else }}...{{ end }}`
-- Loops: `{{ range commands }}{{ .display_path }}{{ end }}`
-- Fallbacks and helpers: `{{ default value "-" }}`, `{{ join values ", " }}`
-- Escape modes: `none`, `asciidoc`, `html`, and `url`
+- Raw output (skip escape mode): `{{ @raw usage }}`
+- AsciiDoc helpers: `{{ anchor path }}`, `{{ adoc_escape value }}`
+- `Options.escape_mode`: `none`, `asciidoc`, `html`, `url` (content escaping for interpolations)
 
-AsciiDoc escaping currently protects rendered braces by converting `{` to `\{` and `}` to `\}`. Trusted template-controlled markup can opt out with `@raw`.
+## API
 
-## Credits, inspiration & acknowledgements
+```zig
+const trama = @import("trama");
 
-- [Go templates](https://go.dev/pkg/text/template/)
+// One-shot
+const out = try trama.renderAlloc(allocator, template, context_struct, .{ .escape_mode = .asciidoc });
+defer allocator.free(out);
+
+// Parse once, execute many
+var tmpl = try trama.Template.parse(allocator, template);
+defer tmpl.deinit();
+const out2 = try tmpl.executeStruct(allocator, context_struct, .{});
+defer allocator.free(out2);
+```
+
+Custom functions can be registered via `FuncMap` and passed in `Options.funcs`.
+
+## Credits
+
+- [Go text/template](https://pkg.go.dev/text/template/)
 - [Zkittle](https://codeberg.org/bcrist/zkittle)
