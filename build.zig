@@ -5,7 +5,7 @@ pub fn build(b: *std.Build) void {
     const optimize = b.standardOptimizeOption(.{});
 
     const mod = b.addModule("trama", .{
-        .root_source_file = b.path("src/lib/root.zig"),
+        .root_source_file = b.path("lib/trama/root.zig"),
         .target = target,
         .optimize = optimize,
     });
@@ -39,7 +39,7 @@ pub fn build(b: *std.Build) void {
 
     const fmt = b.addFmt(.{
         .check = true,
-        .paths = &.{"src/"},
+        .paths = &.{"lib/"},
     });
     check_step.dependOn(&fmt.step);
 }
