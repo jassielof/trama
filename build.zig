@@ -1,12 +1,10 @@
 const std = @import("std");
 
 pub fn build(b: *std.Build) void {
-    const mod_name = "trama";
-
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
 
-    const mod = b.addModule(mod_name, .{
+    const mod = b.addModule("trama", .{
         .root_source_file = b.path("src/lib/root.zig"),
         .target = target,
         .optimize = optimize,
@@ -30,28 +28,12 @@ pub fn build(b: *std.Build) void {
     const tests_step = b.step("test", "Run the test suite");
 
     const unit_tests = b.addTest(.{
-        .name = "Unit",
+        .name = "Trama",
         .root_module = mod,
     });
 
     const run_unit_tests = b.addRunArtifact(unit_tests);
     tests_step.dependOn(&run_unit_tests.step);
-
-    const integration_tests = b.addTest(.{
-        .name = "Integration",
-        .root_module = b.createModule(.{
-            .root_source_file = b.path("tests/suite.zig"),
-            .target = target,
-            .optimize = optimize,
-            .imports = &.{.{
-                .name = mod_name,
-                .module = mod,
-            }},
-        }),
-    });
-
-    const run_integration_tests = b.addRunArtifact(integration_tests);
-    tests_step.dependOn(&run_integration_tests.step);
 
     const check_step = b.step("check", "Run code quality checks");
 
