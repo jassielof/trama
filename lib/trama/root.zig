@@ -193,6 +193,30 @@ test "pipelines and whitespace trim" {
     try std.testing.expectEqualStrings("Hello,Ada!\n(none)", rendered);
 }
 
+test "trims whitespace at range boundaries" {
+    const rendered = try renderAlloc(
+        std.testing.allocator,
+        \\before
+        \\{{ range values -}}
+        \\- {{ . }}
+        \\{{ end -}}
+        \\after
+    ,
+        .{ .values = &[_][]const u8{ "alpha", "beta" } },
+        .{},
+    );
+    defer std.testing.allocator.free(rendered);
+
+    try std.testing.expectEqualStrings(
+        \\before
+        \\- alpha
+        \\- beta
+        \\after
+    ,
+        rendered,
+    );
+}
+
 test "comments are omitted" {
     const rendered = try renderAlloc(
         std.testing.allocator,
