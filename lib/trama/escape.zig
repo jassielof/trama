@@ -8,7 +8,7 @@ const std = @import("std");
 /// How interpolated (non-`@raw`) values are escaped when written.
 pub const EscapeMode = enum {
     none,
-    /// Escape `{`, `}`, `<`, `>` for AsciiDoc attribute safety.
+    /// Escape `{` and `}` so text is never read as an AsciiDoc attribute reference. `<` and `>` are ordinary AsciiDoc text and pass through unchanged.
     asciidoc,
     html,
     url,
@@ -17,7 +17,7 @@ pub const EscapeMode = enum {
 pub fn escapeAsciiDoc(allocator: std.mem.Allocator, out: *std.ArrayList(u8), text: []const u8) !void {
     for (text) |ch| {
         switch (ch) {
-            '{', '}', '<', '>' => {
+            '{', '}' => {
                 try out.append(allocator, '\\');
                 try out.append(allocator, ch);
             },

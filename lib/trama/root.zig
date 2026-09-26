@@ -147,6 +147,14 @@ test "interpolates fields and escapes asciidoc braces" {
     try std.testing.expectEqualStrings("docent: Use \\{app-name\\}", rendered);
 }
 
+test "asciidoc escaping leaves angle brackets alone" {
+    const ctx = .{ .usage = "typm help <command> and <output-dir>/<name>" };
+    const rendered = try renderAlloc(std.testing.allocator, "{{ usage }}", ctx, .{ .escape_mode = .asciidoc });
+    defer std.testing.allocator.free(rendered);
+
+    try std.testing.expectEqualStrings("typm help <command> and <output-dir>/<name>", rendered);
+}
+
 test "supports conditionals ranges current item and raw output" {
     const Item = struct { name: []const u8 };
     const ctx = .{
