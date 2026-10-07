@@ -39,7 +39,7 @@ pub fn build(b: *std.Build) void {
 
     const fmt = b.addFmt(.{
         .check = true,
-        .paths = &.{"lib/"},
+        .paths = b.pathList(&.{"lib/"}),
     });
     check_step.dependOn(&fmt.step);
 }
