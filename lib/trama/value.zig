@@ -149,12 +149,12 @@ pub fn fromTyped(allocator: std.mem.Allocator, comptime T: type, value: T) !Valu
             return .{ .list = items };
         },
         .@"struct" => |st| {
-            var fields = try allocator.alloc(Field, st.fields.len);
+            var fields = try allocator.alloc(Field, st.field_names.len);
             errdefer allocator.free(fields);
-            inline for (st.fields, 0..) |field, i| {
+            inline for (st.field_names, st.field_types, 0..) |name, F, i| {
                 fields[i] = .{
-                    .name = field.name,
-                    .value = try fromTyped(allocator, field.type, @field(value, field.name)),
+                    .name = name,
+                    .value = try fromTyped(allocator, F, @field(value, name)),
                 };
             }
             return .{ .object = fields };
